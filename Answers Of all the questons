@@ -1,0 +1,71 @@
+OpenShift test
+    • Q1 
+        ◦ Deploy https://github.com/sclorg/nodejs-ex on openshift in q1 namespace/project
+            ▪ The commands are as follows
+                • Oc login -u developer -p redhat
+                • Oc new-project ques1
+                • Oc new-app --name q1 https://github.com/sclorg/nodejs-ex
+    • Q2
+        ◦ In q2 namespace, create imagestream for nodejs and deploy https://github.com/sclorg/nodejs-ex 
+            ▪ The commands are as follows
+                • Oc login -u developer -p redhat
+                • Oc new-project ques2
+                • Oc import-image --name nodejs --confirm --from https://server.lab.example.com/nodejs --insecure
+                • Oc get is
+                    ◦ Above command will give u the image stream that was just created
+    • Q3
+        ◦ Create a pod and configmap (of some file), use configmap as a volume
+            ▪ Oc login -u developer -p redhat
+            ▪ Oc new-project quotes
+            ▪ Let’s say that there is a yaml file naming quotes-applicaton.yaml, we will create a pod with that yaml file
+                • We will add the yaml file into the project first
+                    ◦ Oc create -f quotes-app.yaml
+                • We will create an app based on that
+                    ◦ Oc new-app --file quotes-app.yaml
+            ▪ Oc get pods
+                • Above command will list the pods
+            ▪ Create a config map
+                • Oc create configmap config-quotes --from-file /path/to/file
+            ▪ Inject the configmap as a volume
+                • Oc set volume dc/quotes-app --add --t configmap -m /path/to/mount --name myvol --configmap-name config.quotes
+    • Q4
+        ◦ Create a pod and secret (username and password), inject those secrets as env in your pod
+            ▪ Creating a pod
+                • Oc login -u developer -p redhat
+                • Oc new-project q4
+                • Oc new-app --name pod-secret https://github.com/somerepo
+                • Oc get pods
+                    ◦ Above command will list the pods
+                        ▪ Assume podname to be pod-secret-xyz123
+                • Oc export svc pod-secret --hostname=podsecret.example.com
+            ▪ Creatng a secret
+                • Oc create generic secret secret-q4 --from-file /path/to/file.txt
+            ▪ Setting the pod as env
+                • Oc set env bc/pod-secret --from secret/secretq4
+    • Q5
+        ◦ Create a deployment which has init container, init container should create some file and which should be available in main pod. (logic of your choice)
+            ▪ Never heard of what init container while doing Do288 (or maybe  have missed it)
+    • Q6,Q7
+        ◦ Cannot recall sorry :/
+    • Q8
+        ◦ Find template named cakephp-mysql-persistent and deploy it and export the yamls
+            ▪ Oc login -u developer -p redhat
+            ▪ Oc new-project q8
+            ▪ Oc get template -n openshift | grep cake-php-mysql-persistent
+            ▪ Oc export cake-php-mysql-persistent -o cake.yaml (not sure about this command)
+            ▪ Oc new-app --name cakephp-template --from-file=cake.yaml
+    • Q9
+        ◦ Never did/heard/tried any ques like this sorry :/
+Theory Question
+    • Pods and Deployment
+        ◦ Pod->smallest unit resource in openshft.When we run an app,it’ll will run n one of the pods.
+        ◦ Deployment->Contains the specification of pod like secrets,configmaps.Because we inject these in build config.
+    • Working of buildConfig and s2i
+        ◦ BuildConfig -> When we create an app then according to the build scripts defined,it’ll build the app according to that.
+        ◦ S2i
+            ▪ S2i will take your code and will add the appropiate parent images as defined in the file.
+            ▪ Then it will create a builder image out of  it which can be used with any app.
+    • What is imagestream?
+        ◦ From a practical purpose
+            ▪ First we import the image in a project using the oc import-image command then an image stream will be created.
+                • That image stream can be imported to any other app using -i flag.
